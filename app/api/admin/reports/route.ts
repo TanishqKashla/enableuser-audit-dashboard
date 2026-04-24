@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { getCurrentAdmin } from "@/lib/session";
 import { parseCsv, CsvParseError } from "@/app/reports/_lib/parseCsv";
 import { parseUrls } from "@/app/reports/_lib/parseUrls";
+import { validateCsvUrlMatch } from "@/app/reports/_lib/validate";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -16,6 +17,7 @@ const Body = z.object({
   csvText: z.string().min(1, "CSV is required."),
   urlText: z.string().optional().default(""),
   storeRawCsv: z.boolean().optional().default(true),
+  ignoreWarnings: z.boolean().optional().default(false),
 });
 
 export async function POST(req: Request) {
@@ -32,7 +34,8 @@ export async function POST(req: Request) {
     );
   }
 
-  const { title, clientName, csvText, urlText, storeRawCsv } = parsed.data;
+  const { title, clientName, csvText, urlText, storeRawCsv, ignoreWarnings } =
+    parsed.data;
 
   if (new TextEncoder().encode(csvText).byteLength > MAX_CSV_BYTES) {
     return NextResponse.json(
@@ -56,6 +59,24 @@ export async function POST(req: Request) {
   }
 
   const { urls } = parseUrls(urlText);
+
+  const match = validateCsvUrlMatch(issues, urls);
+  if (match.errors.length > 0) {
+    return NextResponse.json(
+      { error: match.errors.join(" "), errors: match.errors },
+      { status: 400 },
+    );
+  }
+  if (match.warnings.length > 0 && !ignoreWarnings) {
+    return NextResponse.json(
+      {
+        error: "Warnings need confirmation before saving.",
+        warnings: match.warnings,
+        requiresConfirmation: true,
+      },
+      { status: 409 },
+    );
+  }
 
   const report = await prisma.report.create({
     data: {

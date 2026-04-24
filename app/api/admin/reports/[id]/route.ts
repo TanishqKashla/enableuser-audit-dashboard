@@ -4,6 +4,8 @@ import { prisma } from "@/lib/db";
 import { getCurrentAdmin } from "@/lib/session";
 import { parseCsv, CsvParseError } from "@/app/reports/_lib/parseCsv";
 import { parseUrls } from "@/app/reports/_lib/parseUrls";
+import { validateCsvUrlMatch } from "@/app/reports/_lib/validate";
+import { Issue } from "@/app/reports/_lib/types";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -16,6 +18,7 @@ const PatchBody = z.object({
   csvText: z.string().min(1).optional(),
   urlText: z.string().optional(),
   storeRawCsv: z.boolean().optional(),
+  ignoreWarnings: z.boolean().optional(),
 });
 
 interface Ctx {
@@ -85,6 +88,37 @@ export async function PATCH(req: Request, { params }: Ctx) {
   if (parsed.data.urlText !== undefined) {
     const { urls } = parseUrls(parsed.data.urlText);
     data.auditedUrls = urls;
+  }
+
+  if (data.issues !== undefined || data.auditedUrls !== undefined) {
+    const existing = await prisma.report.findUnique({
+      where: { id: params.id },
+      select: { issues: true, auditedUrls: true },
+    });
+    if (!existing) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+    const effectiveIssues = (data.issues ??
+      existing.issues) as unknown as Issue[];
+    const effectiveUrls = (data.auditedUrls ??
+      existing.auditedUrls) as unknown as string[];
+    const match = validateCsvUrlMatch(effectiveIssues ?? [], effectiveUrls ?? []);
+    if (match.errors.length > 0) {
+      return NextResponse.json(
+        { error: match.errors.join(" "), errors: match.errors },
+        { status: 400 },
+      );
+    }
+    if (match.warnings.length > 0 && !parsed.data.ignoreWarnings) {
+      return NextResponse.json(
+        {
+          error: "Warnings need confirmation before saving.",
+          warnings: match.warnings,
+          requiresConfirmation: true,
+        },
+        { status: 409 },
+      );
+    }
   }
 
   try {

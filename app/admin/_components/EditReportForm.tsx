@@ -24,15 +24,18 @@ export default function EditReportForm({
   const [urlText, setUrlText] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [warnings, setWarnings] = useState<string[]>([]);
+  const [pendingConfirm, setPendingConfirm] = useState(false);
 
   async function handleCsvFile(file: File) {
     setError(null);
     setCsvFileName(file.name);
     setCsvText(await file.text());
+    setWarnings([]);
+    setPendingConfirm(false);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function submit(ignoreWarnings: boolean) {
     setError(null);
     if (!title.trim()) {
       setError("Title cannot be empty.");
@@ -44,9 +47,11 @@ export default function EditReportForm({
       clientName: string | null;
       csvText?: string;
       urlText?: string;
+      ignoreWarnings?: boolean;
     } = {
       title: title.trim(),
       clientName: clientName.trim() || null,
+      ignoreWarnings,
     };
     if (csvText) payload.csvText = csvText;
     if (replaceUrls) payload.urlText = urlText;
@@ -58,6 +63,14 @@ export default function EditReportForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+
+      if (res.status === 409) {
+        const body = await res.json().catch(() => ({}));
+        setWarnings(body?.warnings || []);
+        setPendingConfirm(true);
+        return;
+      }
+
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         setError(body?.error || "Failed to save.");
@@ -70,6 +83,13 @@ export default function EditReportForm({
     } finally {
       setSubmitting(false);
     }
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setWarnings([]);
+    setPendingConfirm(false);
+    submit(false);
   }
 
   return (
@@ -131,14 +151,22 @@ export default function EditReportForm({
               <input
                 type="checkbox"
                 checked={replaceUrls}
-                onChange={(e) => setReplaceUrls(e.target.checked)}
+                onChange={(e) => {
+                  setReplaceUrls(e.target.checked);
+                  setWarnings([]);
+                  setPendingConfirm(false);
+                }}
               />
               Replace
             </label>
           </div>
           <textarea
             value={urlText}
-            onChange={(e) => setUrlText(e.target.value)}
+            onChange={(e) => {
+              setUrlText(e.target.value);
+              setWarnings([]);
+              setPendingConfirm(false);
+            }}
             disabled={!replaceUrls}
             placeholder={"https://example.com/\nhttps://example.com/about"}
             className="mt-4 h-28 w-full resize-y rounded-md border border-slate-300 px-3 py-2 font-mono text-xs focus:border-slate-500 focus:outline-none disabled:bg-slate-50 disabled:text-slate-400"
@@ -156,21 +184,58 @@ export default function EditReportForm({
         </div>
       )}
 
+      {warnings.length > 0 && (
+        <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <p className="font-medium">Please review before saving:</p>
+          <ul className="mt-1.5 list-disc space-y-1 pl-5">
+            {warnings.map((w, i) => (
+              <li key={i}>{w}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <div className="flex items-center gap-3">
-        <button
-          type="submit"
-          disabled={submitting}
-          className="rounded-md bg-brand px-5 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-slate-300"
-        >
-          {submitting ? "Saving…" : "Save changes"}
-        </button>
-        <button
-          type="button"
-          onClick={() => router.push(`/admin/reports/${reportId}`)}
-          className="text-sm text-slate-600 underline hover:text-slate-900"
-        >
-          Cancel
-        </button>
+        {pendingConfirm ? (
+          <>
+            <button
+              type="button"
+              onClick={() => submit(true)}
+              disabled={submitting}
+              className="rounded-md bg-amber-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-amber-700 disabled:cursor-not-allowed disabled:bg-amber-300"
+            >
+              {submitting ? "Saving…" : "Save anyway"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setPendingConfirm(false);
+                setWarnings([]);
+              }}
+              disabled={submitting}
+              className="text-sm text-slate-600 underline hover:text-slate-900"
+            >
+              Cancel
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="rounded-md bg-brand px-5 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+            >
+              {submitting ? "Saving…" : "Save changes"}
+            </button>
+            <button
+              type="button"
+              onClick={() => router.push(`/admin/reports/${reportId}`)}
+              className="text-sm text-slate-600 underline hover:text-slate-900"
+            >
+              Cancel
+            </button>
+          </>
+        )}
       </div>
     </form>
   );
