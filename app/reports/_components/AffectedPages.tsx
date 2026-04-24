@@ -31,7 +31,7 @@ export default function AffectedPages({ issues, auditedUrls }: Props) {
   }, [auditedUrls, rollups, coverage.hasUrlList]);
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-6">
+    <section className="rounded-lg border border-slate-200 bg-white p-4 sm:p-6">
       <div className="flex items-center justify-between">
         <h2 className="text-base font-semibold">Affected pages</h2>
       </div>

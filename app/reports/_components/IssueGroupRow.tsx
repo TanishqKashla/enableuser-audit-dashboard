@@ -10,6 +10,7 @@ export interface IssueGroup {
   severity: Severity;
   guidelines: string[];
   instances: Issue[];
+  subtitle?: string;
 }
 
 interface Props {
@@ -39,7 +40,7 @@ export default function IssueGroupRow({ group }: Props) {
       <button
         onClick={toggle}
         aria-expanded={expanded}
-        className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-slate-50"
+        className="flex w-full items-center gap-2 px-3 py-3 text-left hover:bg-slate-50 sm:gap-3 sm:px-4"
       >
         <span className="text-slate-400">
           <svg
@@ -68,21 +69,28 @@ export default function IssueGroupRow({ group }: Props) {
           {group.severity}
         </span>
         <span className="flex-1 min-w-0">
-          <span className="block font-medium text-slate-900">{group.name}</span>
-          <span className="block font-mono text-xs text-slate-500">
-            {group.key}
+          <span className="block break-words text-sm font-medium text-slate-900 sm:text-base">
+            {group.name}
           </span>
+          {(group.subtitle ?? group.key) && (
+            <span className="block break-words font-mono text-[11px] text-slate-500 sm:text-xs">
+              {group.subtitle ?? group.key}
+            </span>
+          )}
         </span>
         {group.guidelines.length > 0 && (
           <span className="hidden items-center gap-1 md:inline-flex">
-            {group.guidelines.slice(0, 3).map((g) => (
-              <span
-                key={g}
-                className="rounded bg-slate-100 px-1.5 py-0.5 text-[11px] text-slate-600"
-              >
-                {g}
-              </span>
-            ))}
+            {group.guidelines.slice(0, 3).map((g) => {
+              const label = g.replace(/\s*\(experimental\)\s*$/i, "").trim();
+              return (
+                <span
+                  key={g}
+                  className="rounded bg-slate-100 px-1.5 py-0.5 text-[11px] text-slate-600"
+                >
+                  {label}
+                </span>
+              );
+            })}
           </span>
         )}
         <span className="rounded-full bg-brand px-2.5 py-0.5 text-xs font-semibold text-white">
@@ -91,7 +99,7 @@ export default function IssueGroupRow({ group }: Props) {
       </button>
 
       {expanded && (
-        <div className="border-t border-slate-100 bg-slate-50/50 px-4 py-4">
+        <div className="border-t border-slate-100 bg-slate-50/50 px-3 py-4 sm:px-4">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
             <div
               className={`${

@@ -39,7 +39,7 @@ export default function ConformanceGrid({ issues }: Props) {
   }, [scCounts]);
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-6">
+    <section className="rounded-lg border border-slate-200 bg-white p-4 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="text-base font-semibold">Conformance summary</h2>

@@ -10,7 +10,7 @@ import { Issue } from "@/app/reports/_lib/types";
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
-const MAX_CSV_BYTES = 2 * 1024 * 1024;
+const MAX_CSV_BYTES = 3.5 * 1024 * 1024;
 
 const PatchBody = z.object({
   title: z.string().trim().min(1).max(200).optional(),
@@ -66,7 +66,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
   if (parsed.data.csvText !== undefined) {
     if (new TextEncoder().encode(parsed.data.csvText).byteLength > MAX_CSV_BYTES) {
       return NextResponse.json(
-        { error: "CSV exceeds the 2 MB size limit." },
+        { error: "CSV exceeds the 3.5 MB size limit." },
         { status: 413 },
       );
     }

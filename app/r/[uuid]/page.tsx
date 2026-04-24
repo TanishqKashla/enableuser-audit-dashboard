@@ -37,17 +37,17 @@ export default async function PublicReportPage({ params }: Props) {
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
           <BrandHeader size="sm" />
-          <span className="text-xs uppercase tracking-[0.2em] text-slate-500">
+          <span className="hidden text-xs uppercase tracking-[0.2em] text-slate-500 sm:inline">
             Accessibility Report
           </span>
         </div>
       </div>
 
-      <main className="mx-auto max-w-7xl px-6 py-10">
-        <header className="mb-8">
-          <h1 className="text-2xl font-semibold text-slate-900">
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
+        <header className="mb-6 sm:mb-8">
+          <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl">
             {report.title}
           </h1>
           {report.clientName && (
@@ -62,7 +62,7 @@ export default async function PublicReportPage({ params }: Props) {
       </main>
 
       <footer className="border-t border-slate-200 bg-white">
-        <div className="mx-auto max-w-7xl px-6 py-6 text-xs text-slate-500">
+        <div className="mx-auto max-w-7xl px-4 py-6 text-xs text-slate-500 sm:px-6">
           <p>
             Powered by{" "}
             <span className="font-medium text-brand">Enableuser</span> —

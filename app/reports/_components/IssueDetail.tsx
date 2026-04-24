@@ -88,25 +88,6 @@ export default function IssueDetail({ issue, onClose }: Props) {
           </Field>
         </div>
 
-        {issue.issueLink && (
-          <a
-            href={issue.issueLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-md bg-brand px-3 py-1.5 text-xs font-medium text-white transition hover:bg-brand-700"
-          >
-            Open in site-scanner
-            <svg width="10" height="10" viewBox="0 0 12 12" fill="none" aria-hidden>
-              <path
-                d="M4 2h6v6M10 2L4 8M2 10h4"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </a>
-        )}
       </div>
     </div>
   );

@@ -32,19 +32,19 @@ export default async function AdminReportViewPage({ params }: Props) {
       </div>
 
       <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900">
+        <div className="min-w-0">
+          <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl">
             {report.title}
           </h1>
           {report.clientName && (
             <p className="mt-1 text-sm text-slate-600">{report.clientName}</p>
           )}
-          <p className="mt-2 text-xs text-slate-500">
+          <p className="mt-2 break-all text-xs text-slate-500">
             Created {report.createdAt.toLocaleString()} · ID{" "}
             <code className="font-mono">{report.id}</code>
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Link
             href={`/r/${report.id}`}
             target="_blank"

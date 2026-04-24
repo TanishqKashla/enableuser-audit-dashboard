@@ -233,9 +233,38 @@ export default function ReportsIndex({ rows }: Props) {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-2">
-                          <CopyLinkButton path={`/r/${r.id}`} />
+                          <a
+                            href={`/r/${r.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                          >
+                            <svg
+                              width="12"
+                              height="12"
+                              viewBox="0 0 16 16"
+                              fill="none"
+                              aria-hidden
+                            >
+                              <path
+                                d="M8 3.5C4.5 3.5 2 8 2 8s2.5 4.5 6 4.5S14 8 14 8s-2.5-4.5-6-4.5z"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                strokeLinejoin="round"
+                              />
+                              <circle
+                                cx="8"
+                                cy="8"
+                                r="2"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                fill="none"
+                              />
+                            </svg>
+                            View report
+                          </a>
                           <Link
-                            href={`/admin/reports/${r.id}`}
+                            href={`/admin/reports/${r.id}/edit`}
                             className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
                           >
                             <svg
@@ -254,6 +283,10 @@ export default function ReportsIndex({ rows }: Props) {
                             </svg>
                             Edit report
                           </Link>
+                          <CopyLinkButton
+                            path={`/r/${r.id}`}
+                            label="Copy link"
+                          />
                         </div>
                       </td>
                     </tr>

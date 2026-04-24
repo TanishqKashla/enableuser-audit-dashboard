@@ -17,7 +17,7 @@ export default function AffectedComponents({ issues }: Props) {
   const visible = showAll ? rollups : rollups.slice(0, 10);
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-6">
+    <section className="rounded-lg border border-slate-200 bg-white p-4 sm:p-6">
       <h2 className="text-base font-semibold">Affected components</h2>
       <div className="mt-1 text-sm text-slate-600">
         Total: <span className="font-medium text-slate-900">{rollups.length}</span>

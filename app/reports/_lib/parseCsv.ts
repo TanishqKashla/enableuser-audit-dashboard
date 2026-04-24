@@ -88,7 +88,7 @@ export function parseCsv(csvText: string): CsvParseResult {
 function splitGuidelines(raw: string): string[] {
   return raw
     .split(",")
-    .map((s) => s.trim())
+    .map((s) => s.replace(/\s*\(experimental\)\s*$/i, "").trim())
     .filter(Boolean);
 }
 
@@ -97,7 +97,7 @@ function parseBool(raw: string | undefined): boolean {
 }
 
 export function extractSuccessCriteria(guidelines: string[]): string[] {
-  const pattern = /^SC\s+(\d+\.\d+\.\d+)$/i;
+  const pattern = /^SC\s+(\d+\.\d+\.\d+)\b/i;
   const codes: string[] = [];
   for (const g of guidelines) {
     const m = g.match(pattern);

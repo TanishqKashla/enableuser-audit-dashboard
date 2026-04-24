@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useState } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 import { Severity, SEVERITIES } from "../_lib/types";
 import { SeverityCounts } from "../_lib/aggregate";
@@ -16,14 +17,35 @@ const SEVERITY_COLOR: Record<Severity, string> = {
   minor: "#6b7280",
 };
 
+const SEVERITY_DESCRIPTION: Record<Severity, string> = {
+  critical: "Blocks users from completing core tasks.",
+  serious: "Major barrier; workaround may exist.",
+  moderate: "Degrades experience; doesn't block.",
+  minor: "Minor polish, low user impact.",
+};
+
 export default function IssueSummary({ severityCounts, total }: Props) {
   const data = SEVERITIES.filter((s) => severityCounts[s] > 0).map((s) => ({
     name: s,
     value: severityCounts[s],
   }));
 
+  const chartRef = useRef<HTMLDivElement | null>(null);
+  const [hovered, setHovered] = useState<Severity | null>(null);
+  const [cursor, setCursor] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+
+  function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    const rect = chartRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setCursor({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  }
+
+  const hoveredValue = hovered ? severityCounts[hovered] : 0;
+  const hoveredPct =
+    hovered && total > 0 ? Math.round((hoveredValue / total) * 100) : 0;
+
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-6">
+    <section className="rounded-lg border border-slate-200 bg-white p-4 sm:p-6">
       <div className="flex items-center justify-between">
         <h2 className="text-base font-semibold">Issue summary</h2>
       </div>
@@ -32,7 +54,11 @@ export default function IssueSummary({ severityCounts, total }: Props) {
       </p>
 
       <div className="mt-4 grid grid-cols-1 items-center gap-6 md:grid-cols-2">
-        <div className="relative h-48">
+        <div
+          ref={chartRef}
+          onMouseMove={handleMouseMove}
+          className="relative h-48"
+        >
           {total > 0 ? (
             <>
               <ResponsiveContainer width="100%" height="100%">
@@ -45,6 +71,11 @@ export default function IssueSummary({ severityCounts, total }: Props) {
                     outerRadius="95%"
                     paddingAngle={1}
                     stroke="none"
+                    isAnimationActive={false}
+                    onMouseEnter={(entry: { name?: Severity }) => {
+                      if (entry?.name) setHovered(entry.name);
+                    }}
+                    onMouseLeave={() => setHovered(null)}
                   >
                     {data.map((entry) => (
                       <Cell
@@ -61,6 +92,32 @@ export default function IssueSummary({ severityCounts, total }: Props) {
                   Issues
                 </div>
               </div>
+              {hovered && (
+                <div
+                  className="pointer-events-none absolute z-20 w-44 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] shadow-lg"
+                  style={{
+                    left: cursor.x,
+                    top: cursor.y,
+                    transform: "translate(-50%, calc(-100% - 10px))",
+                  }}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className="h-1.5 w-1.5 rounded-full"
+                      style={{ backgroundColor: SEVERITY_COLOR[hovered] }}
+                    />
+                    <span className="font-semibold capitalize text-slate-900">
+                      {hovered}
+                    </span>
+                    <span className="ml-auto tabular-nums text-slate-500">
+                      {hoveredValue} · {hoveredPct}%
+                    </span>
+                  </div>
+                  <p className="mt-0.5 leading-snug text-slate-600">
+                    {SEVERITY_DESCRIPTION[hovered]}
+                  </p>
+                </div>
+              )}
             </>
           ) : (
             <div className="flex h-full items-center justify-center text-sm text-slate-500">

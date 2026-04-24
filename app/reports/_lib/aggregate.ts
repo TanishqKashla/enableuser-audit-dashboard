@@ -84,27 +84,100 @@ export function computePageCoverage(
 
 export const SEVERITY_WEIGHTS: Record<Severity, number> = {
   critical: 4,
-  serious: 3,
-  moderate: 2,
-  minor: 1,
+  serious: 2,
+  moderate: 1,
+  minor: 0.5,
 };
+
+export interface SeverityBreakdown {
+  severity: Severity;
+  issueTypes: number;
+  instances: number;
+  impact: number;
+}
+
+export interface ScoreBreakdown {
+  score: number;
+  penalty: number;
+  bySeverity: SeverityBreakdown[];
+}
+
+// Score formula (per issue type):
+//   penalty = weight × ln(1 + instanceCount) × (pagesAffected / pagesAudited)
+//   score   = 100 − Σ penalty_per_type
+// Severity weights are non-linear (8/4/2/1) so a few critical defects outweigh
+// many moderate ones. Grouping by issue type rewards fix-by-pattern (one
+// alt-text bug on 40 images ≠ 40 distinct critical defects). ln smooths
+// repetition with diminishing returns; linear page coverage means a bug on
+// 10% of pages costs 10% of the uncapped per-type penalty.
+export function computeScoreBreakdown(
+  issues: Issue[],
+  pagesAudited: number,
+): ScoreBreakdown {
+  const empty: SeverityBreakdown[] = SEVERITIES.map((s) => ({
+    severity: s,
+    issueTypes: 0,
+    instances: 0,
+    impact: 0,
+  }));
+
+  if (pagesAudited <= 0 || issues.length === 0) {
+    return { score: 100, penalty: 0, bySeverity: empty };
+  }
+
+  const groups = new Map<
+    string,
+    { severity: Severity; count: number; pages: Set<string> }
+  >();
+  for (const i of issues) {
+    const key = i.issueType || i.issueName;
+    let g = groups.get(key);
+    if (!g) {
+      g = { severity: i.severity, count: 0, pages: new Set() };
+      groups.set(key, g);
+    }
+    g.count++;
+    g.pages.add(i.affectedPage);
+  }
+
+  const agg: Record<Severity, SeverityBreakdown> = {
+    critical: { severity: "critical", issueTypes: 0, instances: 0, impact: 0 },
+    serious: { severity: "serious", issueTypes: 0, instances: 0, impact: 0 },
+    moderate: { severity: "moderate", issueTypes: 0, instances: 0, impact: 0 },
+    minor: { severity: "minor", issueTypes: 0, instances: 0, impact: 0 },
+  };
+
+  let penalty = 0;
+  for (const g of groups.values()) {
+    const weight = SEVERITY_WEIGHTS[g.severity];
+    const coverage = Math.min(1, g.pages.size / pagesAudited);
+    const p = weight * Math.log(1 + g.count) * coverage;
+    const bucket = agg[g.severity];
+    bucket.issueTypes++;
+    bucket.instances += g.count;
+    bucket.impact += p;
+    penalty += p;
+  }
+
+  const score = Math.max(0, Math.min(100, Math.round(100 - penalty)));
+  return {
+    score,
+    penalty,
+    bySeverity: SEVERITIES.map((s) => agg[s]),
+  };
+}
 
 export function computeDerivedScore(
   issues: Issue[],
   pagesAudited: number,
 ): number {
-  if (pagesAudited <= 0) return 100;
-  let weightedTotal = 0;
-  for (const i of issues) weightedTotal += SEVERITY_WEIGHTS[i.severity];
-  const perPage = weightedTotal / pagesAudited;
-  const score = Math.round(100 - perPage);
-  return Math.max(0, Math.min(100, score));
+  return computeScoreBreakdown(issues, pagesAudited).score;
 }
 
 export { SEVERITIES };
 
 export function extractSuccessCriteriaCodes(raw: string[]): string[] {
-  const pattern = /^SC\s+(\d+\.\d+\.\d+)$/i;
+  const pattern = /^SC\s+(\d+\.\d+\.\d+)\b/i;
   const codes: string[] = [];
   for (const g of raw) {
     const m = g.match(pattern);

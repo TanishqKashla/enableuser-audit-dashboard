@@ -20,8 +20,8 @@ export default function AdminNav({ adminEmail }: Props) {
 
   return (
     <nav className="border-b border-slate-200 bg-white">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
-        <div className="flex items-center gap-6">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+        <div className="flex items-center gap-3 sm:gap-6">
           <Link
             href="/admin/reports"
             className="flex items-center gap-3"
@@ -51,7 +51,9 @@ export default function AdminNav({ adminEmail }: Props) {
           </Link>
         </div>
         <div className="flex items-center gap-3 text-sm">
-          <span className="text-slate-500">{adminEmail}</span>
+          <span className="hidden max-w-[160px] truncate text-slate-500 sm:inline">
+            {adminEmail}
+          </span>
           <button
             onClick={handleLogout}
             className="rounded-md border border-slate-300 px-3 py-1 text-slate-700 hover:bg-slate-50"

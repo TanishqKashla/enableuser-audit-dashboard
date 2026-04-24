@@ -83,7 +83,6 @@ export default function SummaryTab({ report }: Props) {
         <AccessibilityScore
           issues={issues}
           pagesAudited={coverage.totalAudited}
-          severityCounts={severityCounts}
           hasUrlList={coverage.hasUrlList}
         />
         <IssueSummary severityCounts={severityCounts} total={issues.length} />
@@ -115,7 +114,7 @@ function TotalIssuesCard({
   })).filter((seg) => seg.width > 0);
 
   return (
-    <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-gradient-to-br from-brand-50 via-white to-white p-6 md:col-span-2">
+    <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-gradient-to-br from-brand-50 via-white to-white p-5 sm:p-6 md:col-span-2">
       <div
         className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full opacity-10"
         style={{ background: "#542b7c" }}
@@ -125,8 +124,8 @@ function TotalIssuesCard({
           <div className="text-xs font-semibold uppercase tracking-[0.15em] text-brand">
             Total issues found
           </div>
-          <div className="mt-3 flex items-baseline gap-3">
-            <span className="text-5xl font-bold tracking-tight text-slate-900">
+          <div className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <span className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
               {total}
             </span>
             {total > 0 && affectedPages > 0 && (
@@ -173,12 +172,12 @@ function PagesAuditedCard({ coverage }: { coverage: PageCoverage }) {
   const withPct = totalAudited > 0 ? (withIssues / totalAudited) * 100 : 0;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-6">
+    <div className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6">
       <div className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">
         Pages audited
       </div>
       <div className="mt-3 flex items-baseline gap-2">
-        <span className="text-5xl font-bold tracking-tight text-slate-900">
+        <span className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
           {hasUrlList ? totalAudited : withIssues}
         </span>
         {!hasUrlList && (
