@@ -233,10 +233,8 @@ export default function ReportsIndex({ rows }: Props) {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-2">
-                          <a
-                            href={`/r/${r.id}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <Link
+                            href={`/admin/reports/${r.id}`}
                             className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
                           >
                             <svg
@@ -262,7 +260,7 @@ export default function ReportsIndex({ rows }: Props) {
                               />
                             </svg>
                             View report
-                          </a>
+                          </Link>
                           <Link
                             href={`/admin/reports/${r.id}/edit`}
                             className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"

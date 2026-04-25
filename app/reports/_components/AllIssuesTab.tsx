@@ -68,85 +68,88 @@ export default function AllIssuesTab({ report }: Props) {
 
   return (
     <section className="rounded-lg border border-slate-200 bg-white">
-      <div className="flex flex-col gap-3 border-b border-slate-200 px-4 py-3 sm:flex-row sm:flex-wrap sm:items-center">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <h2 className="text-base font-semibold">All issues</h2>
+      <div className="border-b border-slate-200 px-4 py-3">
+        <div className="flex flex-wrap items-center gap-3">
           <span className="text-sm text-slate-500">
-            {groups.length} {groupNoun} · {filtered.length} instance
-            {filtered.length === 1 ? "" : "s"}
+            <span className="font-medium text-slate-900">{groups.length}</span>{" "}
+            {groupNoun}
+            <span className="mx-1.5 text-slate-300">·</span>
+            <span className="font-medium text-slate-900">
+              {filtered.length}
+            </span>{" "}
+            instance{filtered.length === 1 ? "" : "s"}
           </span>
-        </div>
-        <div
-          role="tablist"
-          aria-label="Group by"
-          className="inline-flex self-start rounded-md border border-slate-300 bg-white p-0.5 text-xs sm:self-auto"
-        >
-          <button
-            role="tab"
-            aria-selected={groupMode === "type"}
-            onClick={() => setGroupMode("type")}
-            className={`rounded px-2.5 py-1 font-medium transition ${
-              groupMode === "type"
-                ? "bg-brand text-white"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
+          <div
+            role="tablist"
+            aria-label="Group by"
+            className="ml-auto inline-flex rounded-md border border-slate-300 bg-white p-0.5 text-xs"
           >
-            By issue type
-          </button>
-          <button
-            role="tab"
-            aria-selected={groupMode === "wcag"}
-            onClick={() => setGroupMode("wcag")}
-            className={`rounded px-2.5 py-1 font-medium transition ${
-              groupMode === "wcag"
-                ? "bg-brand text-white"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            By WCAG
-          </button>
+            <button
+              role="tab"
+              aria-selected={groupMode === "type"}
+              onClick={() => setGroupMode("type")}
+              className={`rounded px-2.5 py-1 font-medium transition ${
+                groupMode === "type"
+                  ? "bg-brand text-white"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              By issue type
+            </button>
+            <button
+              role="tab"
+              aria-selected={groupMode === "wcag"}
+              onClick={() => setGroupMode("wcag")}
+              className={`rounded px-2.5 py-1 font-medium transition ${
+                groupMode === "wcag"
+                  ? "bg-brand text-white"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              By WCAG
+            </button>
+          </div>
         </div>
-        <div className="flex flex-col gap-2 sm:ml-auto sm:flex-row sm:flex-wrap sm:items-center">
+
+        <div className="mt-3 flex flex-wrap items-center gap-2">
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search issue name, type, component"
-            className="h-9 w-full rounded-md border border-slate-300 px-2 text-sm focus:border-slate-500 focus:outline-none sm:h-8 sm:w-auto"
+            className="h-9 min-w-[180px] flex-1 rounded-md border border-slate-300 px-2 text-sm focus:border-slate-500 focus:outline-none sm:h-8 sm:max-w-xs"
           />
-          <div className="flex gap-2">
-            <select
-              value={severityFilter}
-              onChange={(e) => setSeverityFilter(e.target.value as Severity | "all")}
-              className="h-9 flex-1 rounded-md border border-slate-300 px-2 text-sm sm:h-8 sm:flex-initial"
+          <select
+            value={severityFilter}
+            onChange={(e) => setSeverityFilter(e.target.value as Severity | "all")}
+            className="h-9 rounded-md border border-slate-300 px-2 text-sm sm:h-8"
+          >
+            <option value="all">All severities</option>
+            {SEVERITIES.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+          <select
+            value={pageFilter}
+            onChange={(e) => setPageFilter(e.target.value)}
+            className="h-9 rounded-md border border-slate-300 px-2 text-sm sm:h-8"
+          >
+            <option value="all">All pages</option>
+            {pages.map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
+          </select>
+          {hasActiveFilters && (
+            <button
+              onClick={resetFilters}
+              className="ml-auto h-9 rounded-md px-2 text-xs text-slate-600 underline hover:text-slate-900 sm:h-8"
             >
-              <option value="all">All severities</option>
-              {SEVERITIES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-            <select
-              value={pageFilter}
-              onChange={(e) => setPageFilter(e.target.value)}
-              className="h-9 flex-1 rounded-md border border-slate-300 px-2 text-sm sm:h-8 sm:flex-initial"
-            >
-              <option value="all">All pages</option>
-              {pages.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
-            {hasActiveFilters && (
-              <button
-                onClick={resetFilters}
-                className="h-9 rounded-md px-2 text-xs text-slate-600 underline hover:text-slate-900 sm:h-8"
-              >
-                Reset
-              </button>
-            )}
-          </div>
+              Reset
+            </button>
+          )}
         </div>
       </div>
 

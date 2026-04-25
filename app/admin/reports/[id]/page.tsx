@@ -52,6 +52,15 @@ export default async function AdminReportViewPage({ params }: Props) {
           >
             Public link ↗
           </Link>
+          {report.rawCsv && (
+            <a
+              href={`/r/${report.id}/csv`}
+              download
+              className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            >
+              Download CSV
+            </a>
+          )}
           <Link
             href={`/admin/reports/${report.id}/edit`}
             className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"

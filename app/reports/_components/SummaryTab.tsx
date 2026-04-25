@@ -56,6 +56,11 @@ export default function SummaryTab({ report }: Props) {
     () => computePageCoverage(issues, auditedUrls),
     [issues, auditedUrls],
   );
+  const uniqueIssueTypes = useMemo(() => {
+    const set = new Set<string>();
+    for (const i of issues) set.add(i.issueType || i.issueName);
+    return set.size;
+  }, [issues]);
 
   return (
     <div className="space-y-6">
@@ -67,6 +72,39 @@ export default function SummaryTab({ report }: Props) {
         />
         <PagesAuditedCard coverage={coverage} />
       </section>
+
+      {issues.length > 0 && uniqueIssueTypes > 0 && (
+        <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-600">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            aria-hidden
+            className="shrink-0 text-brand"
+          >
+            <circle
+              cx="8"
+              cy="8"
+              r="6.5"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            />
+            <path
+              d="M8 7.5v3.5M8 5.25v.5"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+          </svg>
+          <span>
+            Total unique issues found:{" "}
+            <span className="font-semibold text-slate-900">
+              {uniqueIssueTypes}
+            </span>
+          </span>
+        </div>
+      )}
 
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {SEVERITIES.map((s) => (
