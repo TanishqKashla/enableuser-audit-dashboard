@@ -17,9 +17,10 @@ const SEVERITY_RANK: Record<Severity, number> = {
 
 interface Props {
   report: ParsedReport;
+  showTimestamp?: boolean;
 }
 
-export default function AllIssuesTab({ report }: Props) {
+export default function AllIssuesTab({ report, showTimestamp }: Props) {
   const { issues } = report;
 
   const [groupMode, setGroupMode] = useState<GroupMode>("type");
@@ -160,7 +161,7 @@ export default function AllIssuesTab({ report }: Props) {
       ) : (
         <div>
           {groups.map((g) => (
-            <IssueGroupRow key={g.key} group={g} />
+            <IssueGroupRow key={g.key} group={g} showTimestamp={showTimestamp} />
           ))}
         </div>
       )}

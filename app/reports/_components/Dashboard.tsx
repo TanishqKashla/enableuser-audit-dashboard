@@ -4,19 +4,22 @@ import { useState } from "react";
 import { ParsedReport } from "../_lib/types";
 import SummaryTab from "./SummaryTab";
 import AllIssuesTab from "./AllIssuesTab";
+import FaqTab from "./FaqTab";
 
 interface Props {
   report: ParsedReport;
+  isAdmin?: boolean;
 }
 
-type TabId = "summary" | "issues";
+type TabId = "summary" | "issues" | "faq";
 
 const TABS: { id: TabId; label: string }[] = [
   { id: "summary", label: "Summary" },
   { id: "issues", label: "All issues" },
+  { id: "faq", label: "FAQ" },
 ];
 
-export default function Dashboard({ report }: Props) {
+export default function Dashboard({ report, isAdmin }: Props) {
   const [activeTab, setActiveTab] = useState<TabId>("summary");
 
   if (report.issues.length === 0) {
@@ -78,11 +81,11 @@ export default function Dashboard({ report }: Props) {
         id={`tab-panel-${activeTab}`}
         aria-labelledby={`tab-${activeTab}`}
       >
-        {activeTab === "summary" ? (
-          <SummaryTab report={report} />
-        ) : (
-          <AllIssuesTab report={report} />
+        {activeTab === "summary" && <SummaryTab report={report} />}
+        {activeTab === "issues" && (
+          <AllIssuesTab report={report} showTimestamp={isAdmin} />
         )}
+        {activeTab === "faq" && <FaqTab />}
       </div>
     </div>
   );

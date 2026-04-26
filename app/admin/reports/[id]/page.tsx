@@ -71,7 +71,7 @@ export default async function AdminReportViewPage({ params }: Props) {
         </div>
       </header>
 
-      <Dashboard report={{ issues, auditedUrls }} />
+      <Dashboard report={{ issues, auditedUrls }} isAdmin />
     </div>
   );
 }

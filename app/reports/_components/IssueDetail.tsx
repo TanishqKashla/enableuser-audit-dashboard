@@ -5,9 +5,10 @@ import { Issue } from "../_lib/types";
 interface Props {
   issue: Issue;
   onClose?: () => void;
+  showTimestamp?: boolean;
 }
 
-export default function IssueDetail({ issue, onClose }: Props) {
+export default function IssueDetail({ issue, onClose, showTimestamp }: Props) {
   return (
     <div className="relative">
       {onClose && (
@@ -83,9 +84,11 @@ export default function IssueDetail({ issue, onClose }: Props) {
           <Field label="Behavior" compact>
             {issue.behavior || "—"}
           </Field>
-          <Field label="Timestamp" compact>
-            {issue.timestamp || "—"}
-          </Field>
+          {showTimestamp && (
+            <Field label="Timestamp" compact>
+              {issue.timestamp || "—"}
+            </Field>
+          )}
         </div>
 
       </div>

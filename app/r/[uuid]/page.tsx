@@ -55,9 +55,6 @@ export default async function PublicReportPage({ params }: Props) {
             {report.clientName && (
               <p className="mt-1 text-sm text-slate-600">{report.clientName}</p>
             )}
-            <p className="mt-2 text-xs text-slate-500">
-              Generated {report.createdAt.toLocaleString()}
-            </p>
           </div>
           {hasCsv && (
             <a

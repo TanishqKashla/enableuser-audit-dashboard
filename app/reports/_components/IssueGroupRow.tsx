@@ -15,6 +15,7 @@ export interface IssueGroup {
 
 interface Props {
   group: IssueGroup;
+  showTimestamp?: boolean;
 }
 
 const SEVERITY_DOT: Record<Severity, string> = {
@@ -24,7 +25,7 @@ const SEVERITY_DOT: Record<Severity, string> = {
   minor: "bg-severity-minor",
 };
 
-export default function IssueGroupRow({ group }: Props) {
+export default function IssueGroupRow({ group, showTimestamp }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
 
@@ -146,6 +147,7 @@ export default function IssueGroupRow({ group }: Props) {
                   <IssueDetail
                     issue={group.instances[selectedIdx]}
                     onClose={() => setSelectedIdx(null)}
+                    showTimestamp={showTimestamp}
                   />
                 </div>
               </div>
